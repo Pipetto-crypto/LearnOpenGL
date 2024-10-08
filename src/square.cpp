@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "shader-parser.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height){
 	glViewport(0, 0, 800, 600);
@@ -26,29 +27,23 @@ int main(){
     	1, 2, 3   //second triangle
     };
 
-    /*Vertex shader source code. The vertex shader represents
+    /* Vertex shader source code. The vertex shader represents
     a 2D image of a 3D geometry. Header declares the version.
     location refers to the vertex attribute, 0 is the position of attr
     layout is the attrib and contains all the input points in the vertices
     stored in aPos with the in keyword. vertices are in x,y,z so we use a vec3.
     gl_Position places the shader and it is put at the end of the main
-    It is a vec4 variable. x,y,z, and w depth*/
+    It is a vec4 variable. x,y,z, and w depth */
     
-    const char *vertexShaderSource = "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
+	std::string vertexShaderSource = parseShader("src/shaders/square_vertex_shaders.vs");
+    const char* vs = vertexShaderSource.c_str();
 
-    /*Fragment shader source code. The fragment shader represents the color
-    of the pixels. out specify the variable that stores the attrobute*/
-        
-	const char *fragmentShaderSource = "#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"void main(){\n"
-		"FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-		"}\0";
+    /* Fragment shader source code. The fragment shader represents the color
+    of the pixels. out specify the variable that stores the attrobute */
+
+	std::string fragmentShaderSource = parseShader("src/shaders/square_fragment_shaders.vs");
+    const char* fs = fragmentShaderSource.c_str();    
+
     unsigned int VBO;
     unsigned int VAO;
     unsigned int EBO;
@@ -87,11 +82,12 @@ int main(){
 		glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		/*We create the VAO and bind it*/
+		/* We create the VAO and bind it */
+
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 
-		/*We create the EBO, we bind the EBO to the VAO and then we send data
+		/* We create the EBO, we bind the EBO to the VAO and then we send data
 		to it
 		*/
 
@@ -102,33 +98,35 @@ int main(){
 		/* We create the VBO, we bind the VBO to the VAO and then we send
 		   data to it
 		*/
+
         glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO); 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); 
 
-	  /*This function tells how we want to interpret the vertex data. first -
+	  /* This function tells how we want to interpret the vertex data. first -
 		param specify the position, defined in the vertex shader, second param
 		the number of vertices, third param their type, fourth param not important
 		fifth param is the stride, aka the lenght of each attribute, in this case 
 		every coordinate is 4 byte, so in total is 12 byte, sixth param is the
 		offset
 	  */
+
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 
-		/* We create the vertext shader, set the source code and compile it*/
+		/* We create the vertext shader, set the source code and compile it */
 
 		vertexShader = glCreateShader(GL_VERTEX_SHADER); 
-		glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+		glShaderSource(vertexShader, 1, &vs, NULL);
 		glCompileShader(vertexShader);
 
 		/* We do the same thing for the fragment shader */
 
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+		glShaderSource(fragmentShader, 1, &fs, NULL);
 		glCompileShader(fragmentShader);
 		
-		/*Check if the shaders compiled successfully*/
+		/* Check if the shaders compiled successfully */
 		
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
 		if(!result) {
@@ -142,7 +140,7 @@ int main(){
 		    throw std::runtime_error(log);
 		}
 
-		/*We create the shader program, attach the shaders to it and then link
+		/* We create the shader program, attach the shaders to it and then link
 		  them all together
 		*/
 
@@ -151,7 +149,7 @@ int main(){
 		glAttachShader(shaderProgram, fragmentShader);
 		glLinkProgram(shaderProgram);
 
-		/*We check if the program was linked successfully and in case we 
+		/* We check if the program was linked successfully and in case we 
 		  destroy the shader
 		*/
 
@@ -162,23 +160,23 @@ int main(){
 		}
 		else{
 		
-			/*If everything went well, we destroy the linked shaders and use
-			the program*/
+			/* If everything went well, we destroy the linked shaders and use
+			the program */
 			
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
 			glUseProgram(shaderProgram);
 			glBindVertexArray(VAO);
 			
-			/*We draw the primitive specified by the first param, where the second
+			/* We draw the primitive specified by the first param, where the second
 			  is the number of vertices, the third their type and last one doesn't
-			  matter if we use an EBO*/
+			  matter if we use an EBO */
 			
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
 		
-	    /*Here we swap between back and front buffer and check events*/
+	    /* Here we swap between back and front buffer and check events */
 	    
 		glfwSwapBuffers(window);
 		glfwPollEvents();

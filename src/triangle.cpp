@@ -22,7 +22,7 @@ int main(){
     	0.0f, 1.0f, 0.0f, 0.5f, 0.7f, 0.3f
     };
 
-    /*Vertex shader source code. The vertex shader represents
+    /* Vertex shader source code. The vertex shader represents
     a 2D image of a 3D geometry. Header declares the version.
     location refers to the vertex attribute, 0 is the position of attr
     first attrib and contains all the input points in the vertices
@@ -30,15 +30,15 @@ int main(){
     gl_Position places the shader and it is put at the end of the main
     It is a vec4 variable. x,y,z, and w depth.
     second attrib represents color and we pass it to the frag shader with
-    out variable vertexColor*/
+    out variable vertexColor */
     
     std::string vertexShaderSource = parseShader("src/shaders/triangle_vertex_shaders.vs");
     const char* vs = vertexShaderSource.c_str();
 
-    /*Fragment shader source code. The fragment shader represents the color
+    /* Fragment shader source code. The fragment shader represents the color
     of the pixels. out specify the variable that stores the attribute, the
     in variable with the same name of the one from the vertex shader links
-    them together*/
+    them together */
         
     std::string fragmentShaderSource = parseShader("src/shaders/triangle_fragment_shaders.vs");
     const char* fs = fragmentShaderSource.c_str();
@@ -81,7 +81,8 @@ int main(){
 		glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		/*We create the VAO and bind it*/
+		/* We create the VAO and bind it */
+		
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 
@@ -92,19 +93,20 @@ int main(){
 		glBindBuffer(GL_ARRAY_BUFFER, VBO); 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); 
 
-	  /*This function tells how we want to interpret the vertex data. first -
+	    /* This function tells how we want to interpret the vertex data. first -
 		param specify the position, defined in the vertex shader, second param
 		the number of vertices, third param their type, fourth param not important
 		fifth param is the stride, aka the lenght of each attribute, in this case 
 		every coordinate is 4 byte and also every color, so in total is 24 byte, 
 		sixth param is the offset
-	  */
+	    */
+
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
-		/* We create the vertext shader, set the source code and compile it*/
+		/* We create the vertext shader, set the source code and compile it */
 
 		vertexShader = glCreateShader(GL_VERTEX_SHADER); 
 		glShaderSource(vertexShader, 1, &vs, NULL);
@@ -116,7 +118,7 @@ int main(){
 		glShaderSource(fragmentShader, 1, &fs, NULL);
 		glCompileShader(fragmentShader);
 		
-		/*Check if the shaders compiled successfully*/
+		/* Check if the shaders compiled successfully */
 		
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result);
 		if(!result) {
@@ -131,7 +133,7 @@ int main(){
 		    return -1;
 		}
 
-		/*We create the shader program, attach the shaders to it and then link
+		/* We create the shader program, attach the shaders to it and then link
 		  them all together
 		*/
 
@@ -140,7 +142,7 @@ int main(){
 		glAttachShader(shaderProgram, fragmentShader);
 		glLinkProgram(shaderProgram);
 
-		/*We check if the program was linked successfully and in case we 
+		/* We check if the program was linked successfully and in case we 
 		  destroy the shader
 		*/
 
@@ -151,21 +153,21 @@ int main(){
 		}
 		else{
 		
-			/*If everything went well, we destroy the linked shaders and use
-			the program*/
+			/* If everything went well, we destroy the linked shaders and use
+			the program */
 			
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
 			glUseProgram(shaderProgram);
 			glBindVertexArray(VAO);
 			
-			/*We draw the primitive specified by the first param, where the
-			third is the number of vertices*/
+			/* We draw the primitive specified by the first param, where the
+			third is the number of vertices */
 			
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 		}
 		
-	    /*Here we swap between back and front buffer and check events*/
+	    /* Here we swap between back and front buffer and check events */
 	    
 		glfwSwapBuffers(window);
 		glfwPollEvents();
